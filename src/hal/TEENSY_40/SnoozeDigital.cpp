@@ -233,23 +233,29 @@ void SnoozeDigital::enableDriver( uint8_t mode ) {
             }
         }
         else if ( mode <= 2 ) {
-            return_isr_gpio6789_enabled = NVIC_IS_ENABLED( IRQ_GPIO6789 );
-            NVIC_DISABLE_IRQ( IRQ_GPIO6789 );
-            NVIC_CLEAR_PENDING( IRQ_GPIO6789 );
-            return_priority_gpio6789 = NVIC_GET_PRIORITY( IRQ_GPIO6789 );//get current priority
-            NVIC_SET_PRIORITY( IRQ_GPIO6789, priority );//set priority to new level
-            __disable_irq( );
-            return_gpio6789_irq = _VectorsRam[IRQ_GPIO6789+16];// save prev isr handler
-            __disable_irq( );
-            attachInterruptVector( IRQ_GPIO6789, &wakeup_isr );
-            __enable_irq( );
-            NVIC_ENABLE_IRQ( IRQ_GPIO6789 );
+            // Only hook in once, no matter how many
+            // GPIO pins have been assigned to wake-up
+            if (nullptr == return_gpio6789_irq)
+            {
+                return_isr_gpio6789_enabled = NVIC_IS_ENABLED( IRQ_GPIO6789 );
+                NVIC_DISABLE_IRQ( IRQ_GPIO6789 );
+                NVIC_CLEAR_PENDING( IRQ_GPIO6789 );
+                return_priority_gpio6789 = NVIC_GET_PRIORITY( IRQ_GPIO6789 );//get current priority
+                NVIC_SET_PRIORITY( IRQ_GPIO6789, priority );//set priority to new level
+                __disable_irq( );
+                return_gpio6789_irq = _VectorsRam[IRQ_GPIO6789+16]; // save prev ISR handler: hack, no official access
+                __disable_irq( );
+                attachInterruptVector( IRQ_GPIO6789, &wakeup_isr );
+                __enable_irq( );
+                NVIC_ENABLE_IRQ( IRQ_GPIO6789 );
+            }
         }
     }
 }
 
 /*******************************************************************************
- *  Disable interrupt and configure pin to orignal state.
+ *  Disable interrupt and configure pin to original state.
+ *  Note that wakeup_isr has already masked all the wakeup pin interrupts
  *******************************************************************************/
 void SnoozeDigital::disableDriver( uint8_t mode ) {
     if (mode == 0) return;
@@ -262,7 +268,7 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
         volatile uint32_t *config;
         config = portConfigRegister( pinNumber );
         *config = return_core_pin_config[pinNumber];
-        
+
         if ( mode == 3 ) {
             volatile uint32_t *gpio = portOutputRegister( pinNumber );
             switch( ( uint32_t )gpio ) {
@@ -363,12 +369,17 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
             }
         }
         else if ( mode <= 2 ) {
-            NVIC_SET_PRIORITY( IRQ_GPIO6789, return_priority_gpio6789 );
-            __disable_irq( );
-            attachInterruptVector( IRQ_GPIO6789, return_gpio6789_irq );// set previous isr func
-            __enable_irq( );
-            return_gpio6789_irq = 0;
-            if ( return_isr_gpio6789_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO6789 );
+            // Only un-hook once, no matter how many
+            // GPIO pins have been assigned to wake-up
+            if (nullptr != return_gpio6789_irq)
+            {
+                NVIC_SET_PRIORITY( IRQ_GPIO6789, return_priority_gpio6789 );
+                __disable_irq( );
+                attachInterruptVector( IRQ_GPIO6789, return_gpio6789_irq );// set previous isr func
+                __enable_irq( );
+                return_gpio6789_irq = nullptr;
+                if ( return_isr_gpio6789_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO6789 );
+            }
         }
     }
 }
@@ -450,7 +461,7 @@ void SnoozeDigital::attachDigitalInterrupt( uint8_t pin, int type ) {
         default: return;
     }
     // TODO: global interrupt disable to protect these read-modify-write accesses?
-    gpio[GPIO_INDEX_IMR] &= ~mask;    // disable interrupt
+    gpio[GPIO_INDEX_IMR] &= ~mask;    // disable interrupt - and forget if it was enabled before (?!)
     *mux = 5;               // pin is GPIO
     gpio[GPIO_INDEX_GDIR] &= ~mask;    // pin to input mode
     uint32_t index = __builtin_ctz( mask );
