@@ -1,4 +1,4 @@
-# Snooze v6.3.9
+# Snooze v6.3.10
 
 ---
 Low power library for the Teensy LC/3.2/3.5/3.6/4.0 class microcontrollers.
@@ -12,7 +12,7 @@ This is a maintenance update because of a change in the new class structure whic
 ***
 
 Example usage:
-```
+```c++
 #include <Snooze.h>
 // Load drivers
 SnoozeDigital digital;
@@ -20,33 +20,33 @@ SnoozeDigital digital;
 // install drivers to a SnoozeBlock
 SnoozeBlock config(digital);
 void setup() {
-pinMode(LED_BUILTIN, OUTPUT);
-/********************************************************
-Define digital pins for waking the teensy up. This
-combines pinMode and attachInterrupt in one function.
+    pinMode(LED_BUILTIN, OUTPUT);
+    /********************************************************
+    Define digital pins for waking the Teensy up. This
+    combines pinMode and attachInterrupt in one function.
 
-Teensy 4.0
-Digtal pins: all pins
+    Teensy 4.0
+    Digital pins: all pins
 
-Teensy 3.x
-Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
+    Teensy 3.x
+    Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
 
-Teensy LC
-Digital pins: 2,6,7,9,10,11,16,21,22
-********************************************************/
-digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
-digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
+    Teensy LC
+    Digital pins: 2,6,7,9,10,11,16,21,22
+    ********************************************************/
+    digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
+    digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
 }
 
 void loop() {
-/********************************************************
-feed the sleep function its wakeup parameters. Then go
-to deepSleep.
-********************************************************/
-int who = Snooze.deepSleep( config );// return module that woke processor
-digitalWrite(LED_BUILTIN, HIGH);
-delay(100);
-digitalWrite(LED_BUILTIN, LOW);
+    /********************************************************
+    feed the sleep function its wakeup parameters. Then go
+    to deepSleep.
+    ********************************************************/
+    int who = Snooze.deepSleep( config );// return module that woke processor
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
 }
 ```
 
@@ -61,7 +61,7 @@ Current Divers:
 8. spi       - Configures the spi pins for low power, does not wake the teensy up.
 
 Next we see the SnoozeBlock only has the timer and digital drivers installed. Even though the Touch driver is loaded it is not installed so it won't get called. In this example either the timer expires or the digital pin is lifted will wake the Teensy up.<br>
-```c
+```c++
 #include <Snooze.h>
 // Load drivers
 SnoozeTouch touch;
@@ -72,38 +72,38 @@ SnoozeTimer timer;
 SnoozeBlock config(timer, digital);
 
 void setup() {
-pinMode(LED_BUILTIN, OUTPUT);
-/********************************************************
-* Set Low Power Timer wake up in milliseconds T3.x/LC, 
-* seconds T4.x.
-********************************************************/
-timer.setTimer(5000);// milliseconds
-/********************************************************
-* Define digital pins for waking the teensy up. This
-* combines pinMode and attachInterrupt in one function.
-* 
-* Teensy 4.0
-* Digtal pins: all pins
-*
-* Teensy 3.x
-* Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
-*
-* Teensy LC
-* Digital pins: 2,6,7,9,10,11,16,21,22
-********************************************************/
-digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
-digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
+    pinMode(LED_BUILTIN, OUTPUT);
+    /********************************************************
+    * Set Low Power Timer wake up in milliseconds T3.x/LC, 
+    * seconds T4.x.
+    ********************************************************/
+    timer.setTimer(5000);// milliseconds
+    /********************************************************
+    * Define digital pins for waking the Teensy up. This
+    * combines pinMode and attachInterrupt in one function.
+    * 
+    * Teensy 4.0
+    * Digtal pins: all pins
+    *
+    * Teensy 3.x
+    * Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
+    *
+    * Teensy LC
+    * Digital pins: 2,6,7,9,10,11,16,21,22
+    ********************************************************/
+    digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
+    digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
 }
 
 void loop() {
-/********************************************************
-* feed the sleep function its wakeup parameters. Then go 
-* to deepSleep.
-********************************************************/
-int who = Snooze.deepSleep( config );// return module that woke processor
-digitalWrite(LED_BUILTIN, HIGH);
-delay(100);
-digitalWrite(LED_BUILTIN, LOW);
+    /********************************************************
+    * feed the sleep function its wakeup parameters. Then go 
+    * to deepSleep.
+    ********************************************************/
+    int who = Snooze.deepSleep( config );// return module that woke processor
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
 }
 ```
 <b>Lets break out each part out so we can see what is going on here:</b><br>

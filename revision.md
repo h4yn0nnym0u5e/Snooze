@@ -1,7 +1,11 @@
-Updated (10/10/20 v6.3.9)
-Updated T4 SPI driver.
-Changed Button Hold example pin to 6.
-Updated start early hook in T4.
+><b>Updated (2025-11-09 v6.3.10)</b><br>
+* Synced with current Teensyduino  release (1.59)
+* Fix issue with multiple-GPIO wakeup on Teensy 4.x
+
+><b>Updated (10/10/20 v6.3.9)</b><br>
+* Updated T4 SPI driver.
+* Changed Button Hold example pin to 6.
+* Updated start early hook in T4.
 
 ><b>Updated (4/20/20 v6.3.8)</b><br>
 * Maintenance release.<br>
