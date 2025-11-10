@@ -260,6 +260,11 @@ void SnoozeDigital::enableDriver( uint8_t mode ) {
 void SnoozeDigital::disableDriver( uint8_t mode ) {
     if (mode == 0) return;
     uint64_t _pin = pin;
+
+    // seem to be able to get spurious interrupts during teardown:
+    // mask all interrupts while we're messing with _VectorsRam[]
+    __disable_irq( );
+
     while ( __builtin_popcountll( _pin ) ) {
         uint32_t pinNumber = 63 - __builtin_clzll( _pin );
         _pin &= ~( ( uint64_t )1 << pinNumber );// remove pin from list
@@ -275,18 +280,14 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
                 case IMXRT_GPIO6_ADDRESS: {
                     if ( ( GPIO1_IMR & 0xFFFF0000 ) && return_gpio1_16_31_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO1_16_31, return_priority_gpio1_16_31 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO1_16_31, return_gpio1_16_31_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio1_16_31_irq = 0;
                         if ( return_isr_gpio1_16_31_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO1_16_31 );
                         //IOMUXC_GPR_GPR26 |= ( GPIO1_IMR & 0xFFFF0000 );
                     }
                     if ( ( GPIO1_IMR & 0xFFFF ) && return_gpio1_0_15_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO1_0_15, return_priority_gpio1_0_15 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO1_0_15, return_gpio1_0_15_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio1_0_15_irq = 0;
                         if ( return_isr_gpio1_0_15_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO1_0_15 );
                         //IOMUXC_GPR_GPR26 |= ( GPIO1_IMR & 0xFFFF );
@@ -298,18 +299,14 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
                 case IMXRT_GPIO7_ADDRESS: {
                     if ( ( GPIO2_IMR & 0xFFFF0000 ) ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO2_16_31, return_priority_gpio2_16_31 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO2_16_31, return_gpio2_16_31_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio2_16_31_irq = 0;
                         if ( return_isr_gpio2_16_31_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO2_16_31 );
                         //IOMUXC_GPR_GPR27 |= ( GPIO2_IMR & 0xFFFF0000 );
                     }
                     if ( ( GPIO2_IMR & 0xFFFF ) && return_gpio2_0_15_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO2_0_15, return_priority_gpio2_0_15 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO2_0_15, return_gpio2_0_15_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio2_0_15_irq = 0;
                         if ( return_isr_gpio2_0_15_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO2_0_15 );
                         //IOMUXC_GPR_GPR27 |= ( GPIO2_IMR & 0xFFFF );
@@ -321,18 +318,14 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
                 case IMXRT_GPIO8_ADDRESS: {
                     if ( ( GPIO3_IMR & 0xFFFF0000 ) && return_gpio2_16_31_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO3_16_31, return_priority_gpio3_16_31 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO3_16_31, return_gpio3_16_31_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio3_16_31_irq = 0;
                         if ( return_isr_gpio3_16_31_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO3_16_31 );
                         //IOMUXC_GPR_GPR28 |= ( GPIO3_IMR & 0xFFFF0000 );
                     }
                     if ( ( GPIO3_IMR & 0xFFFF ) && return_gpio3_0_15_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO3_0_15, return_priority_gpio3_0_15 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO3_0_15, return_gpio3_0_15_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio3_0_15_irq = 0;
                         if ( return_isr_gpio3_0_15_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO3_0_15 );
                         //IOMUXC_GPR_GPR28 |= ( GPIO3_IMR & 0xFFFF );
@@ -344,18 +337,14 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
                 case IMXRT_GPIO9_ADDRESS: {
                     if ( ( GPIO4_IMR & 0xFFFF0000 ) && return_gpio4_16_31_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO4_16_31, return_priority_gpio4_16_31 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO4_16_31, return_gpio4_16_31_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio4_16_31_irq = 0;
                         if ( return_isr_gpio4_16_31_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO4_16_31 );
                         //IOMUXC_GPR_GPR29 |= ( GPIO4_IMR & 0xFFFF0000 );
                     }
                     if ( ( GPIO4_IMR & 0xFFFF ) && return_gpio4_0_15_irq != 0 ) {
                         NVIC_SET_PRIORITY( IRQ_GPIO4_0_15, return_priority_gpio4_0_15 );
-                        __disable_irq( );
                         attachInterruptVector( IRQ_GPIO4_0_15, return_gpio4_0_15_irq );// set previous isr func
-                        __enable_irq( );
                         return_gpio4_0_15_irq = 0;
                         if ( return_isr_gpio4_0_15_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO4_0_15 );
                         //IOMUXC_GPR_GPR29 |= ( GPIO4_IMR & 0xFFFF );
@@ -374,14 +363,15 @@ void SnoozeDigital::disableDriver( uint8_t mode ) {
             if (nullptr != return_gpio6789_irq)
             {
                 NVIC_SET_PRIORITY( IRQ_GPIO6789, return_priority_gpio6789 );
-                __disable_irq( );
                 attachInterruptVector( IRQ_GPIO6789, return_gpio6789_irq );// set previous isr func
-                __enable_irq( );
                 return_gpio6789_irq = nullptr;
                 if ( return_isr_gpio6789_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_GPIO6789 );
             }
         }
     }
+
+    // should be safe to do this now:
+    __enable_irq( );
 }
 
 /*******************************************************************************
